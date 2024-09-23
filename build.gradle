@@ -10,7 +10,6 @@ buildscript {
   }
   dependencies {
 
-
   }
 }
 
@@ -59,7 +58,7 @@ configure(subprojects) {
 
 subprojects {
   version = '$projectVersion'
-  ext.appName = 'YourProjectName'
+  ext.appName = 'Tamagotchi'
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
