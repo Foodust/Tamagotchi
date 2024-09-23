@@ -1,32 +1,47 @@
 package foodust.tamagotchi.screen.game;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import foodust.tamagotchi.screen.menu.MainMenuScreen;
-import lombok.Getter;
+import com.badlogic.gdx.Screen;
+import foodust.tamagotchi.game.Tamagotchi;
 
-@Getter
-public class GameScreen extends Game {
+public class GameScreen implements Screen {
+    Tamagotchi game;
 
-    private SpriteBatch batch;
-    private BitmapFont font;
-
-    @Override
-    public void create() {
-        batch = new SpriteBatch();
-        font = new BitmapFont();
-        this.setScreen(new MainMenuScreen(this));
+    public GameScreen(Tamagotchi game) {
+        this.game = game;
     }
 
     @Override
-    public void render() {
-        super.render();
+    public void show() {
+
+    }
+
+    @Override
+    public void render(float v) {
+
+    }
+
+    @Override
+    public void resize(int i, int i1) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
-        font.dispose();
+
     }
 }

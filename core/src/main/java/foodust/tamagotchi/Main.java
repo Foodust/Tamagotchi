@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import foodust.tamagotchi.manager.object.ObjectManager;
 import foodust.tamagotchi.module.InputModule;
+import foodust.tamagotchi.module.Modules;
 import foodust.tamagotchi.module.image.SpriteModule;
 import foodust.tamagotchi.module.image.TextureModule;
 import foodust.tamagotchi.module.sound.SoundModule;
@@ -28,11 +29,7 @@ import java.util.List;
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
  */
 public class Main extends ApplicationAdapter {
-
-    private final TextureModule textureModule = new TextureModule();
-    private final SoundModule soundModule = new SoundModule();
-    private final InputModule inputModule = new InputModule();
-
+    private final Modules modules = new Modules();
     private Vector2 touchPos;
 
     MainCharacter mainCharacter;
@@ -48,10 +45,10 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        backgroundTexture = textureModule.makeTexture("background.png");
+        backgroundTexture = modules.getTextureModule().makeTexture("background.png");
 
-        dropSound = soundModule.makeSound("drop.mp3");
-        music = soundModule.makeMusic("music.mp3");
+        dropSound = modules.getSoundModule().makeSound("drop.mp3");
+        music = modules.getSoundModule().makeMusic("music.mp3");
 
         mainCharacter = new MainCharacter("bucket.png");
 
@@ -86,12 +83,12 @@ public class Main extends ApplicationAdapter {
     }
 
     private void input() {
-        if (inputModule.getKeyBoardInput(Input.Keys.RIGHT)) {
+        if (modules.getInputModule().getKeyBoardInput(Input.Keys.RIGHT)) {
             mainCharacter.getSprite().translateX(mainCharacter.getSpeed() * Gdx.graphics.getDeltaTime());
-        } else if (inputModule.getKeyBoardInput(Input.Keys.LEFT)) {
+        } else if (modules.getInputModule().getKeyBoardInput(Input.Keys.LEFT)) {
             mainCharacter.getSprite().translateX(-mainCharacter.getSpeed() * Gdx.graphics.getDeltaTime());
         }
-        if (inputModule.getTouch()) {
+        if (modules.getInputModule().getTouch()) {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY());
             viewport.unproject(touchPos);
             mainCharacter.getSprite().setCenterX(touchPos.x);
