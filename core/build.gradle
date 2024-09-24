@@ -4,7 +4,7 @@ eclipse.project.name = appName + '-core'
 dependencies {
   api "com.badlogicgames.ashley:ashley:$ashleyVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
-  api "org.apache.groovy:groovy-all:$groovyVersion"
+//  api "org.apache.groovy:groovy-all:$groovyVersion"
 
   compileOnly 'org.projectlombok:lombok:1.18.34'
   annotationProcessor 'org.projectlombok:lombok:1.18.34'

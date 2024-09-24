@@ -1,20 +1,30 @@
 package foodust.tamagotchi.screen.menu;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
 import foodust.tamagotchi.game.Tamagotchi;
+import foodust.tamagotchi.manager.object.ObjectManager;
+import foodust.tamagotchi.module.Modules;
+import foodust.tamagotchi.module.text.TextClickable;
+import foodust.tamagotchi.screen.game.GameScreen;
 
 public class MainMenuScreen implements Screen {
 
     private final Tamagotchi tamagotchi;
-    OrthographicCamera camera;
+    private  final Modules modules = ObjectManager.getInstance().getModules();
+    private final OrthographicCamera camera;
+    private final TextClickable startText;
+    private final TextClickable quitText;
+
 
     public MainMenuScreen(Tamagotchi tamagotchi) {
         this.tamagotchi = tamagotchi;
         this.camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
+
+//        this.startText = new TextClickable();
+//        this.quitText = new TextClickable();
     }
 
     @Override
@@ -30,14 +40,14 @@ public class MainMenuScreen implements Screen {
         tamagotchi.getBatch().setProjectionMatrix(camera.combined);
 
         tamagotchi.getBatch().begin();
-        tamagotchi.getFont().draw(tamagotchi.getBatch(), "hi", 100, 150);
-        tamagotchi.getFont().draw(tamagotchi.getBatch(), "bye", 100, 100);
+//        .draw(tamagotchi.getBatch(), "Game Start", 100, 150);
+//        .draw(tamagotchi.getBatch(), "bye", 100, 100);
         tamagotchi.getBatch().end();
 
-        if(Gdx.input.isTouched()){
-//            gameScreen.setScreen(new GameScreen(gameScreen));
+//        if () {
+            tamagotchi.setScreen(new GameScreen(tamagotchi));
             dispose();
-        }
+//        }
     }
 
     @Override
