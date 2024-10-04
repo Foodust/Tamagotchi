@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import foodust.tamagotchi.game.Tamagotchi;
 import foodust.tamagotchi.manager.object.ObjectManager;
 import foodust.tamagotchi.module.Modules;
+import foodust.tamagotchi.object.character.main.MainCharacter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,94 +25,66 @@ import java.util.List;
 
 public class GameScreen implements Screen {
     private final Modules modules = ObjectManager.getInstance().getModules();
-    Tamagotchi game;
+    Tamagotchi tamagotchi;
+
+    MainCharacter mainCharacter;
 
     Texture dropImage;
-    Texture bucketImage;
     Sound dropSound;
     Music rainMusic;
     OrthographicCamera camera;
-    Rectangle bucket;
     List<Rectangle> raindrops;
     long lastDropTime;
     int dropsGathered;
 
 
-    public GameScreen(Tamagotchi game) {
-        this.game = game;
-
-        // load the images for the droplet and the bucket, 64x64 pixels each
+    public GameScreen(Tamagotchi tamagotchi) {
+        this.tamagotchi = tamagotchi;
 
         dropImage = modules.getTextureModule().makeTexture("drop.png");
-        bucketImage = modules.getTextureModule().makeTexture("bucket.png");
-
-        // load the drop sound effect and the rain background "music"
+        mainCharacter = new MainCharacter("bucket.png", ObjectManager.X / 2, 32, 64, 64, 1, 1);
         dropSound = modules.getSoundModule().makeSound("drop.mp3");
-        rainMusic = modules.getSoundModule().makeMusic("music.mp3");
-        rainMusic.setLooping(true);
+        rainMusic = modules.getSoundModule().makeMusic("music.mp3", true);
 
-        // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, ObjectManager.X, ObjectManager.Y);
 
-        // create a Rectangle to logically represent the bucket
-        bucket = new Rectangle();
-        bucket.x = (float) 800 / 2 - (float) 64 / 2; // center the bucket horizontally
-        bucket.y = 20; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
-        bucket.width = 64;
-        bucket.height = 64;
-
-        // create the raindrops array and spawn the first raindrop
         raindrops = new ArrayList<>();
         spawnRaindrop();
     }
 
-    private void spawnRaindrop() {
-        Rectangle raindrop = new Rectangle();
-        raindrop.x = MathUtils.random(0, 800 - 64);
-        raindrop.y = 480;
-        raindrop.width = 64;
-        raindrop.height = 64;
-        raindrops.add(raindrop);
-        lastDropTime = TimeUtils.nanoTime();
-    }
-
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+        ScreenUtils.clear(0, 0, 0, 1);
 
-        // tell the camera to update its matrices.
         camera.update();
 
-        // tell the SpriteBatch to render in the
-        // coordinate system specified by the camera.
-        SpriteBatch batch = game.getBatch();
+        SpriteBatch batch = tamagotchi.getBatch();
         batch.setProjectionMatrix(camera.combined);
 
-        // begin a new batch and draw the bucket and
-        // all drops
         batch.begin();
-        game.getFont().draw(batch, "Drops Collected: " + dropsGathered, 0, 480);
-        batch.draw(bucketImage, bucket.x, bucket.y, bucket.width, bucket.height);
+        tamagotchi.getFont().draw(batch, "Drops Collected: " + dropsGathered, 0, ObjectManager.Y);
+        batch.draw(mainCharacter.getTexture(), mainCharacter.getSprite().getX(), mainCharacter.getSprite().getY());
+
         for (Rectangle raindrop : raindrops) {
             batch.draw(dropImage, raindrop.x, raindrop.y);
         }
         batch.end();
 
-        // process user input
         if (modules.getInputModule().getTouch()) {
-            Vector3 touchPos = new Vector3();
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+            Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touchPos);
-            bucket.setX(touchPos.x - (float) 64 / 2);
+            mainCharacter.getSprite().setX(touchPos.x - 32);
         }
-        if (modules.getInputModule().getKeyBoardInput(Input.Keys.LEFT) && bucket.getX() > 0)
-            bucket.x -= (int) (200 * Gdx.graphics.getDeltaTime());
-        if (modules.getInputModule().getKeyBoardInput(Input.Keys.RIGHT) && bucket.getX() < 800 - 64)
-            bucket.x += (int) (200 * Gdx.graphics.getDeltaTime());
 
-        // check if we need to create a new raindrop
+        if (modules.getInputModule().getKeyBoardInput(Input.Keys.LEFT) && mainCharacter.getRectangle().getX() > 0) {
+            mainCharacter.getSprite().setX(mainCharacter.getSprite().getX() - mainCharacter.getSpeed() * Gdx.graphics.getDeltaTime());
+        }
+        if (modules.getInputModule().getKeyBoardInput(Input.Keys.RIGHT) && mainCharacter.getRectangle().getX() < ObjectManager.X - 64) {
+            mainCharacter.getSprite().setX(mainCharacter.getSprite().getX() + mainCharacter.getSpeed() * Gdx.graphics.getDeltaTime());
+        }
+        mainCharacter.updateBounds(mainCharacter.getSprite().getX(), mainCharacter.getSprite().getY() + 32, 64, 64);
+
         if (TimeUtils.nanoTime() - lastDropTime > 1000000000)
             spawnRaindrop();
 
@@ -121,7 +94,7 @@ public class GameScreen implements Screen {
             raindrop.y -= (int) (200 * Gdx.graphics.getDeltaTime());
             if (raindrop.getY() + 64 < 0)
                 iter.remove();
-            if (raindrop.overlaps(bucket)) {
+            if (raindrop.overlaps(mainCharacter.getRectangle())) {
                 dropsGathered++;
                 dropSound.play();
                 iter.remove();
@@ -153,9 +126,18 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         dropImage.dispose();
-        bucketImage.dispose();
+        mainCharacter.dispose();
         dropSound.dispose();
         rainMusic.dispose();
     }
 
+    private void spawnRaindrop() {
+        Rectangle raindrop = new Rectangle();
+        raindrop.x = MathUtils.random(0, ObjectManager.X - 64);
+        raindrop.y = ObjectManager.Y;
+        raindrop.width = 64;
+        raindrop.height = 64;
+        raindrops.add(raindrop);
+        lastDropTime = TimeUtils.nanoTime();
+    }
 }

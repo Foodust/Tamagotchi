@@ -18,8 +18,8 @@ public class ObjectManager {
     private List<BaseObject> objects = new ArrayList<>();
     private Modules modules = new Modules();
     private static ObjectManager instance;
-    public static Integer X = 800;
-    public static Integer Y = 420;
+    public static Float X = 800f;
+    public static Float Y = 420f;
 
     public static ObjectManager getInstance() {
         if (instance == null) {
